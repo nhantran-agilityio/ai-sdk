@@ -16,35 +16,57 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-      {isLoading ? (
-        <div className="flex justify-center items-center h-full">
-          Loading...
-        </div>
-      ) : (
-        <>
-          {messages.map((message) => (
-            <div key={message.id} className="whitespace-pre-wrap">
-              {message.role === "user" ? "User: " : "AI: "}
-              {message.parts.map((part, i) => {
-                switch (part.type) {
-                  case "text":
-                    return <div key={`${message.id}-${i}`}>{part.text}</div>;
-                  case "tool-weather":
-                    return (
-                      <pre key={`${message.id}-${i}`}>
-                        {JSON.stringify(part, null, 2)}
-                      </pre>
-                    );
+      {messages.map((message, index) => {
+        const isAssistant = message.role === "assistant";
+        const isLast = index === messages.length - 1;
+        const isStreamingMessage =
+          isAssistant && isLast && status === "streaming";
+        const isUser = message.role === "user";
+        return (
+          <div
+            key={message.id}
+            className={`whitespace-pre-wrap mb-4 ${isUser ? "text-right" : "text-left"}`}
+          >
+            <strong>{isAssistant ? "AI:" : "User:"}</strong>
+
+            {message.parts.map((part, i) => {
+              if (part.type === "text") {
+                return <div key={i}>{part.text}</div>;
+              }
+
+              if (part.type === "tool-weather") {
+                if (part.state === "input-streaming") {
+                  return (
+                    <div
+                      key={i}
+                      className="mt-2 text-sm text-zinc-400 animate-pulse"
+                    >
+                      Fetching weather...
+                    </div>
+                  );
                 }
-              })}
-            </div>
-          ))}
-        </>
-      )}
+                return (
+                  <pre key={i} className="mt-2 rounded bg-zinc-800 p-2 text-xs">
+                    {JSON.stringify(part.output, null, 2)}
+                  </pre>
+                );
+              }
+
+              return null;
+            })}
+
+            {isStreamingMessage && message.parts.length === 0 && (
+              <div className="mt-2 text-sm text-zinc-400 animate-pulse">
+                Loading...
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       <form
         onSubmit={handleSendMessage}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4"
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 mt-20"
       >
         <div className="flex items-end gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur px-4 py-3 shadow-lg">
           <div className="flex-1 flex items-center gap-3">
