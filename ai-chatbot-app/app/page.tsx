@@ -1,7 +1,19 @@
 "use client";
-
+import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/button";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/conversation";
+import { Loading } from "@/components/loading";
+import { Message, MessageContent } from "@/components/message";
+import { ResponseMessages } from "@/components/response";
+import { Textarea } from "@/components/textarea";
 
 export default function Chat() {
   const [input, setInput] = useState("");
@@ -15,80 +27,90 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
-      {messages.map((message, index) => {
-        const isAssistant = message.role === "assistant";
-        const isLast = index === messages.length - 1;
-        const isStreamingMessage =
-          isAssistant && isLast && status === "streaming";
-        const isUser = message.role === "user";
-        return (
-          <div
-            key={message.id}
-            className={`whitespace-pre-wrap mb-4 ${isUser ? "text-right" : "text-left"}`}
-          >
-            <strong>{isAssistant ? "AI:" : "User:"}</strong>
+    <div className="max-w-4xl mx-auto p-6 relative size-full h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-full">
+        <Conversation className="h-full">
+          <ConversationContent>
+            {messages.map((message) => (
+              <div key={message.id}>
+                {message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case "text":
+                      return (
+                        <Fragment key={`${message.id}-${i}`}>
+                          <Message from={message.role}>
+                            <MessageContent>
+                              <ResponseMessages>{part.text}</ResponseMessages>
+                            </MessageContent>
+                          </Message>
+                        </Fragment>
+                      );
 
-            {message.parts.map((part, i) => {
-              if (part.type === "text") {
-                return <div key={i}>{part.text}</div>;
-              }
+                    case "tool-weather":
+                      return (
+                        <Fragment key={`${message.id}-${i}`}>
+                          <Message from="assistant">
+                            <MessageContent from="assistant">
+                              {part.state === "input-streaming" && (
+                                <div className="flex items-center gap-2 text-sm text-zinc-400 animate-pulse">
+                                  <span>🌦️</span>
+                                  <span>Fetching weather…</span>
+                                </div>
+                              )}
 
-              if (part.type === "tool-weather") {
-                if (part.state === "input-streaming") {
-                  return (
-                    <div
-                      key={i}
-                      className="mt-2 text-sm text-zinc-400 animate-pulse"
-                    >
-                      Fetching weather...
-                    </div>
-                  );
-                }
-                return (
-                  <pre key={i} className="mt-2 rounded bg-zinc-800 p-2 text-xs">
-                    {JSON.stringify(part.output, null, 2)}
-                  </pre>
-                );
-              }
-
-              return null;
-            })}
-
-            {isStreamingMessage && message.parts.length === 0 && (
-              <div className="mt-2 text-sm text-zinc-400 animate-pulse">
-                Loading...
+                              {part.state === "output-available" && (
+                                <pre className="rounded-md bg-zinc-800 p-3 text-xs text-zinc-100 overflow-auto">
+                                  {JSON.stringify(part.output, null, 2)}
+                                </pre>
+                              )}
+                            </MessageContent>
+                          </Message>
+                        </Fragment>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
               </div>
-            )}
-          </div>
-        );
-      })}
+            ))}
+            {isLoading && <Loading />}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
 
-      <form
-        onSubmit={handleSendMessage}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 mt-20"
-      >
-        <div className="flex items-end gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur px-4 py-3 shadow-lg">
-          <div className="flex-1 flex items-center gap-3">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Send a message..."
-              rows={4}
-              disabled={isLoading}
-              className="min-h-12 flex-1 resize-none bg-transparent text-zinc-100 placeholder:text-zinc-500 outline-none text-sm"
-            />
+        <form
+          onSubmit={handleSendMessage}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 mt-20"
+        >
+          <div className="flex items-end gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur px-4 py-3 shadow-lg">
+            <div className="flex-1 flex items-center gap-3">
+              <Textarea
+                className={cn(
+                  "w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0",
+                  "field-sizing-content bg-transparent dark:bg-transparent",
+                  "max-h-48 min-h-16",
+                  "focus-visible:ring-0",
+                )}
+                name="message"
+                onChange={(e) => {
+                  setInput(e.target.value);
+                }}
+                placeholder="Send a message..."
+                disabled={isLoading}
+                value={input}
+              />
+            </div>
+            <Button
+              type="submit"
+              onClick={isLoading ? stop : undefined}
+              disabled={isLoading || !input.trim()}
+              name="send-button"
+            >
+              {isLoading ? "Stop" : "Send"}
+            </Button>
           </div>
-          <button
-            type="submit"
-            onClick={isLoading ? stop : undefined}
-            disabled={isLoading || !input.trim()}
-            className="max-h-100 rounded-md px-4 py-2 bg-blue-500 text-white border border-blue-500 transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600"
-          >
-            {isLoading ? "Stop" : "Send"}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
