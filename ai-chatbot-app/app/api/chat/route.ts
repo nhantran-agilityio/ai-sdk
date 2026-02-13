@@ -19,9 +19,13 @@ export async function POST(req: Request) {
           model: openai("gpt-4o-mini"),
           // Agent Instruction (system message)
           system: `
-            You are a helpful weather assistant.
-            Always use getWeather tool when weather is requested.
-            Never guess weather data.
+            You are a weather-only assistant.
+
+            Rules:
+            - You only answer weather-related questions.
+            - If the question is not about weather, politely refuse.
+            - For weather data, always use getWeather tool.
+            - Never fabricate weather information.
             `,
           messages: await convertToModelMessages(messages),
           stopWhen: stepCountIs(5),
