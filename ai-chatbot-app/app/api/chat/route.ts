@@ -17,6 +17,12 @@ export async function POST(req: Request) {
       execute: async ({ writer: dataStream }) => {
         const result = streamText({
           model: openai("gpt-4o-mini"),
+          // Agent Instruction (system message)
+          system: `
+            You are a helpful weather assistant.
+            Always use getWeather tool when weather is requested.
+            Never guess weather data.
+            `,
           messages: await convertToModelMessages(messages),
           stopWhen: stepCountIs(5),
           tools: {
