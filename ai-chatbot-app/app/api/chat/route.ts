@@ -5,9 +5,9 @@ import {
   stepCountIs,
   createUIMessageStream,
   createUIMessageStreamResponse,
-} from 'ai';
+} from "ai";
 import { openai } from "@ai-sdk/openai";
-import { getWeather } from '@/lib/ai/tools/get-weather';
+import { getWeather } from "@/lib/ai/tools/get-weather";
 
 export async function POST(req: Request) {
   try {
@@ -16,21 +16,26 @@ export async function POST(req: Request) {
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const result = streamText({
-          model: openai('gpt-4o-mini'),
+          model: openai("gpt-4o-mini"),
           messages: await convertToModelMessages(messages),
           stopWhen: stepCountIs(5),
           tools: {
             getWeather,
           },
+          toolChoice: "auto",
+          temperature: 0.2,
+          topP: 0.9,
+          topK: 40,
+          maxOutputTokens: 8192,
         });
-  
         dataStream.merge(result.toUIMessageStream());
       },
     });
-  
+
     return createUIMessageStreamResponse({ stream });
-    
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 }); 
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+    });
   }
 }
