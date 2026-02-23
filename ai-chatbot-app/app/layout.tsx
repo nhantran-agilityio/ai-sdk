@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ChatbotPopup from "@/components/chatpopup";
+import { OpenAIKeyProvider } from "./providers/OpenAIKeyProvider";
+import { ApiKeyModal } from "@/components/apikeymodal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <ChatbotPopup />
+        <OpenAIKeyProvider>
+          {children}
+          <ApiKeyModal />
+          <ChatbotPopup />
+        </OpenAIKeyProvider>
+
       </body>
     </html>
   );

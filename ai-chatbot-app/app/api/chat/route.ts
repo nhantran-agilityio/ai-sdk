@@ -8,11 +8,15 @@ import {
 } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { getWeather } from "@/lib/ai/tools/get-weather";
+import { createOpenAI } from "@ai-sdk/openai";
 
 export async function POST(req: Request) {
   try {
-    const { messages }: { messages: UIMessage[] } = await req.json();
-
+    const { messages, apiKey }: { messages: UIMessage[], apiKey: string } = await req.json();
+    const openai = createOpenAI({
+      apiKey,
+    });
+  
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const result = streamText({

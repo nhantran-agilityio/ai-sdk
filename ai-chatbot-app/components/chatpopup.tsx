@@ -14,11 +14,12 @@ import { Message, MessageContent } from "@/components/message";
 import { ResponseMessages } from "@/components/response";
 import { Textarea } from "@/components/textarea";
 import { Button } from "@/components/button";
+import { useOpenAIKey } from "@/app/providers/OpenAIKeyProvider";
 
 export default function ChatbotPopup() {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
-
+    const { apiKey } = useOpenAIKey();
     const { messages, sendMessage, status, stop } = useChat();
 
     const isLoading = status === "submitted" || status === "streaming";
@@ -26,7 +27,12 @@ export default function ChatbotPopup() {
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!input.trim()) return;
-        sendMessage({ text: input });
+        // sendMessage({ text: input });
+        sendMessage(
+            { text: input },
+            {
+                body: { apiKey }
+            })
         setInput("");
     };
 
