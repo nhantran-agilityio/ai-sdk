@@ -20,8 +20,7 @@ export default function ChatbotPopup() {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
     const { apiKey } = useOpenAIKey();
-    const { messages, sendMessage, status, stop } = useChat();
-
+    const { messages, sendMessage, status, stop, error } = useChat();
     const isLoading = status === "submitted" || status === "streaming";
 
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,7 +41,8 @@ export default function ChatbotPopup() {
             {!open && (
                 <button
                     onClick={() => setOpen(true)}
-                    className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-black text-white shadow-xl hover:scale-110 transition"
+                    disabled={!apiKey}
+                    className="fixed bottom-6 right-6 z-50 w-20 h-20 rounded-full bg-black text-white shadow-xl hover:scale-110 transition"
                 >
                     💬
                 </button>
@@ -122,9 +122,20 @@ export default function ChatbotPopup() {
                                     </div>
                                 ))}
                                 {isLoading && <Loading />}
+                                {error && (
+                                    <div className="text-red-500 text-sm">
+                                        <p>
+                                            {error.message}
+                                        </p>
+                                    </div>
+                                )}
                             </ConversationContent>
                             <ConversationScrollButton />
+
+
                         </Conversation>
+
+
                     </div>
 
                     {/* Input */}

@@ -5,8 +5,8 @@ import {
   stepCountIs,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  LoadAPIKeyError
 } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { createOpenAI } from "@ai-sdk/openai";
 
@@ -48,6 +48,12 @@ export async function POST(req: Request) {
 
     return createUIMessageStreamResponse({ stream });
   } catch (error) {
+    if (error instanceof LoadAPIKeyError) {
+      return Response.json(
+        { error: "AI service is not configured (missing API key)" },
+        { status: 500 }
+      );
+    }
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
     });
