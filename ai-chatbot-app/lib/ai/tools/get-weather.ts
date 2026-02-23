@@ -43,7 +43,6 @@ export const getWeather = tool({
   execute: async (input) => {
     let latitude: number;
     let longitude: number;
-
     if (input.city) {
       const coords = await geocodeCity(input.city);
       if (!coords) {
