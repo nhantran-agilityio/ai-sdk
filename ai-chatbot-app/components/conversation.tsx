@@ -7,7 +7,12 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { Button } from "./button";
 import { ArrowDownIcon } from "./icons/arrow-down-icon";
 
-export type ConversationProps = ComponentProps<typeof StickToBottom>;
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
+
+export type ConversationProps =
+  ComponentPropsWithoutRef<typeof StickToBottom> & {
+    children?: ReactNode;
+  };
 
 export const Conversation = ({ className, ...props }: ConversationProps) => (
   <StickToBottom
