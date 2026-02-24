@@ -8,20 +8,20 @@ import {
     Conversation,
     ConversationContent,
     ConversationScrollButton,
-} from "@/components/conversation";
-import { Loading } from "@/components/loading";
-import { Message, MessageContent } from "@/components/message";
-import { ResponseMessages } from "@/components/response";
-import { Textarea } from "@/components/textarea";
-import { Button } from "@/components/button";
+} from "@/components/Conversation";
+import { Loading } from "@/components/Loading";
+import { Message, MessageContent } from "@/components/Message";
+import { ResponseMessages } from "@/components/Response";
+import { Textarea } from "@/components/TextArea";
+import { Button } from "@/components/Button";
 import { useOpenAIKey } from "@/app/providers/OpenAIKeyProvider";
+import ChatIcon from "./icons/chat-icon";
 
 export default function ChatbotPopup() {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
     const { apiKey } = useOpenAIKey();
-    const { messages, sendMessage, status, stop } = useChat();
-
+    const { messages, sendMessage, status, stop, error } = useChat();
     const isLoading = status === "submitted" || status === "streaming";
 
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,9 +42,11 @@ export default function ChatbotPopup() {
             {!open && (
                 <button
                     onClick={() => setOpen(true)}
-                    className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-black text-white shadow-xl hover:scale-110 transition"
+                    disabled={!apiKey}
+                    className="fixed bottom-6 right-6 z-50 rounded-full bg-black text-white shadow-xl hover:scale-110 transition"
                 >
-                    💬
+
+                    <ChatIcon />
                 </button>
             )}
 
@@ -78,7 +80,6 @@ export default function ChatbotPopup() {
                                                         <Fragment key={`${message.id}-${i}`}>
                                                             <Message from={message.role}>
                                                                 <MessageContent
-                                                                    variant="flat"
                                                                     from={message.role}
                                                                 >
                                                                     <ResponseMessages>
@@ -122,9 +123,20 @@ export default function ChatbotPopup() {
                                     </div>
                                 ))}
                                 {isLoading && <Loading />}
+                                {error && (
+                                    <div className="text-red-500 text-sm">
+                                        <p>
+                                            {error.message}
+                                        </p>
+                                    </div>
+                                )}
                             </ConversationContent>
                             <ConversationScrollButton />
+
+
                         </Conversation>
+
+
                     </div>
 
                     {/* Input */}
@@ -149,9 +161,9 @@ export default function ChatbotPopup() {
                                 />
                             </div>
                             <Button
-                                type="submit"
+                                type={isLoading ? "button" : "submit"}
                                 onClick={isLoading ? stop : undefined}
-                                disabled={isLoading || !input.trim()}
+                                disabled={!isLoading && !input.trim()}
                             >
                                 {isLoading ? "Stop" : "Send"}
                             </Button>

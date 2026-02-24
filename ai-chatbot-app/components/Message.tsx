@@ -46,13 +46,13 @@ export function MessageContent({
       className={cn(
         "flex flex-col gap-2 overflow-hidden rounded-lg text-sm",
         variant === "contained" && [
-          "max-w-[80%] px-4 py-3",
+          "max-w-[80%] px-4 py-3 bg-blue-500",
           isUser
-            ? "bg-blue-500 text-white"
+            ? "bg-blue-500 text-white bg-blue-500"
             : "bg-zinc-800 text-zinc-100",
         ],
         variant === "flat" && [
-          isUser && "max-w-[80%] bg-zinc-800 px-4 py-3 text-zinc-100",
+          isUser && "max-w-[80%] bg-zinc-800 px-4 py-3 text-zinc-100 ",
           !isUser && "text-zinc-100",
         ],
         className
@@ -60,42 +60,6 @@ export function MessageContent({
       {...props}
     >
       {children}
-    </div>
-  );
-}
-
-/* ================= AVATAR ================= */
-
-export type MessageAvatarProps = {
-  src?: string;
-  name?: string;
-  className?: string;
-};
-
-export function MessageAvatar({
-  src,
-  name,
-  className,
-}: MessageAvatarProps) {
-  const initials = name?.slice(0, 2).toUpperCase() || "AI";
-
-  return (
-    <div
-      className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-xs font-medium text-white ring-1 ring-zinc-600",
-        className
-      )}
-    >
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={name ?? "avatar"}
-          className="h-full w-full rounded-full object-cover"
-        />
-      ) : (
-        <span>{initials}</span>
-      )}
     </div>
   );
 }
