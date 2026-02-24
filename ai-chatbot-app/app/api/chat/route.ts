@@ -9,52 +9,68 @@ import {
 } from "ai";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { createOpenAI } from "@ai-sdk/openai";
+import { mapOpenAIErrorToCode, mapOpenAIErrorToMessage } from "@/lib/utils";
 
 export async function POST(req: Request) {
   try {
-    const { messages, apiKey }: { messages: UIMessage[], apiKey: string } = await req.json();
-    const openai = createOpenAI({
-      apiKey,
-    });
-  
-    const stream = createUIMessageStream({
-      execute: async ({ writer: dataStream }) => {
+    const { messages, apiKey }: { messages: UIMessage[]; apiKey: string } =
+      await req.json();
+
+    const openai = createOpenAI({ apiKey });
+
+    const stream = createUIMessageStream<UIMessage>({
+      execute: async ({ writer }): Promise<void> => {
         const result = streamText({
           model: openai("gpt-4o-mini"),
-          // Agent Instruction (system message)
           system: `
             You are a weather-only assistant.
-
             Rules:
             - You only answer weather-related questions.
             - If the question is not about weather, politely refuse.
             - For weather data, always use getWeather tool.
             - Never fabricate weather information.
-            `,
+          `,
           messages: await convertToModelMessages(messages),
           stopWhen: stepCountIs(5),
-          tools: {
-            getWeather,
-          },
-          toolChoice: "required",
+          tools: { getWeather },
+          toolChoice: "auto",
           temperature: 0.2,
           topP: 0.9,
           maxOutputTokens: 500,
+          onError({ error }) {
+            console.error("Stream error:", error);
+          
+            writer.write({
+              type: "error",
+              errorText: JSON.stringify({
+                code: mapOpenAIErrorToCode(error),
+                message: mapOpenAIErrorToMessage(error),
+              }),
+            });
+          }
         });
-        dataStream.merge(result.toUIMessageStream());
+    
+        writer.merge(result.toUIMessageStream());
       },
     });
-
+    
     return createUIMessageStreamResponse({ stream });
-  } catch (error) {
+
+  } catch (error: unknown) {
     if (error instanceof LoadAPIKeyError) {
       return Response.json(
-        { error: "AI service is not configured (missing API key)" },
-        { status: 500 }
+        {
+          error: "AI service is not configured (missing API key)",
+        },
+        { status: 400 }
       );
     }
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-    });
+
+    console.error("Server error:", error);
+
+    return Response.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

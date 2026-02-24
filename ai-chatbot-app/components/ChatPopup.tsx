@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 
-import { cn } from "@/lib/utils";
+import { cn, parseChatError } from "@/lib/utils";
 import {
     Conversation,
     ConversationContent,
@@ -126,7 +126,7 @@ export default function ChatbotPopup() {
                                 {error && (
                                     <div className="text-red-500 text-sm">
                                         <p>
-                                            {error.message}
+                                            {parseChatError(error)}
                                         </p>
                                     </div>
                                 )}
