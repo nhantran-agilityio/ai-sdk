@@ -36,11 +36,10 @@ export async function POST(req: Request) {
           tools: {
             getWeather,
           },
-          toolChoice: "auto",
+          toolChoice: "required",
           temperature: 0.2,
           topP: 0.9,
-          topK: 40,
-          maxOutputTokens: 8192,
+          maxOutputTokens: 500,
         });
         dataStream.merge(result.toUIMessageStream());
       },
