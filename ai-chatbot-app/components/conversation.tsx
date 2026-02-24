@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
-import { Button } from "./button";
+import { Button } from "./Button";
 import { ArrowDownIcon } from "./icons/arrow-down-icon";
 
 import type { ComponentPropsWithoutRef, ReactNode } from "react";

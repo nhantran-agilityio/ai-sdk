@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ChatbotPopup from "@/components/chatpopup";
 import { OpenAIKeyProvider } from "./providers/OpenAIKeyProvider";
-import { ApiKeyModal } from "@/components/apikeymodal";
+import ChatbotPopup from "@/components/ChatPopup";
+import { ApiKeyModal } from "@/components/ApiKeyModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
