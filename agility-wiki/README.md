@@ -142,7 +142,7 @@ pnpm install
 Create `.env` file:
 
 ```
-DATABASE_URL=postgresql://user:password@localhost:5432/agility
+DATABASE_URL=your_database_url
 OPENAI_API_KEY=your_openai_key
 PINECONE_API_KEY=your_pinecone_key
 JWT_SECRET=your_secret
