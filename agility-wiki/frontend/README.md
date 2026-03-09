@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agility Wiki Assistant
 
-## Getting Started
+An AI-powered assistant that helps users query information from the **Agility Wiki** using natural language.
 
-First, run the development server:
+The application uses **OpenAI models with a Retrieval-Augmented Generation (RAG)** approach to retrieve relevant data and generate answers.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Users must provide their own **OpenAI API key** to test the application.
+
+---
+
+# Features
+
+* AI chatbot interface
+* Query Agility Wiki using natural language
+* Retrieval-Augmented Generation (RAG)
+* Uses user's own OpenAI API key (no server-side key required)
+* Suggestion prompts for quick questions
+* Streaming-ready architecture
+
+---
+
+# Tech Stack
+
+Frontend:
+
+* Next.js (App Router)
+* TypeScript
+* TailwindCSS
+* React Context
+
+Backend:
+
+* NestJS
+* Prisma
+* PostgreSQL
+* OpenAI API
+
+AI:
+
+* GPT models
+* Vector search fallback
+* Query planning + structured search
+
+---
+
+# Project Structure
+
+```
+frontend/
+  app/
+  components/
+  providers/
+  services/
+
+backend/
+  src/
+    chat/
+    rag/
+    prisma/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Getting Started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 1. Clone the repository
 
-## Learn More
+```
+git clone <repo-url>
+cd agility-wiki-assistant
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Frontend Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+cd frontend
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+Open in browser:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+# Backend Setup
+
+```
+cd backend
+npm install
+npm run start:dev
+```
+
+The backend will run on:
+
+```
+http://localhost:3001
+```
+
+---
+
+# Using the App
+
+1. Open the application in your browser.
+2. Enter your **OpenAI API Key** when prompted.
+3. Ask questions related to the Agility Wiki.
+
+Example prompts:
+
+* Who is the head of engineering?
+* Which team handles payroll?
+* Who manages the Athena project?
+* List employees in the product team.
+
+---
+
+# API Key Requirement
+
+This project **does not include an OpenAI API key**.
+
+Each tester must provide their own key.
+
+You can create one here:
+
+https://platform.openai.com/api-keys
+
+The key is stored locally in the browser (`localStorage`) and is **never stored on the server**.
+
+---
+
+# Environment Variables (Backend)
+
+Create a `.env` file inside the backend folder:
+
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/agility
+```
+
+---
+
+# Development Notes
+
+The system uses a **RAG pipeline**:
+
+1. AI analyzes the question
+2. Generates a structured query plan
+3. Queries the database using Prisma
+4. Falls back to vector search if needed
+5. Generates a final answer with context
+
+---
+
+# Deployment
+
+Frontend can be deployed using:
+
+* Vercel
+* Netlify
+* Docker
+
+Backend can be deployed using:
+
+* Railway
+* Render
+* Fly.io
+* AWS
+
+---
+
+# Future Improvements
+
+* Streaming responses
+* Better vector search ranking
+* Admin interface for Wiki ingestion
+* Conversation memory
+* Key management UI
+
+---
+
+# License
+
+MIT License
